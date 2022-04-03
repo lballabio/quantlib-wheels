@@ -59,3 +59,129 @@ jobs:
       with:
         name: wheels-macos
         path: ./QuantLib-SWIG-*/Python/dist/*.whl
+  wheels-windows-64:
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.1
+    - name: Setup Boost
+      run: |
+        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.78.0/binaries/boost_1_78_0-msvc-14.2-64.exe"
+        (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost-1.78.0"
+    - name: Build QuantLib
+      run: |
+        Expand-Archive -Path QuantLib-1.25.zip -DestinationPath C:\local
+        Copy-Item Build.props C:\local\QuantLib-1.25\
+        Copy-Item Directory.Build.props C:\local\QuantLib-1.25\
+        cd C:\local\QuantLib-1.25\
+        msbuild QuantLib.vcxproj -p:Configuration="Release (static runtime)" -p:Platform=x64
+        dir lib
+    - name: Install Python
+      run: |
+        (New-Object System.Net.WebClient).DownloadFile("https://www.python.org/ftp/python/3.7.9/python-3.7.9-amd64.exe", "$env:TEMP\python37.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\python37.exe" "/passive","TargetDir=C:\local\python37","PrependPath=0","Include_launcher=0"
+        C:\local\python37\python.exe -m pip install -U pip wheel
+        (New-Object System.Net.WebClient).DownloadFile("https://www.python.org/ftp/python/3.8.10/python-3.8.10-amd64.exe", "$env:TEMP\python38.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\python38.exe" "/passive","TargetDir=C:\local\python38","PrependPath=0","Include_launcher=0"
+        C:\local\python38\python.exe -m pip install -U pip wheel
+        (New-Object System.Net.WebClient).DownloadFile("https://www.python.org/ftp/python/3.9.12/python-3.9.12-amd64.exe", "$env:TEMP\python39.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\python39.exe" "/passive","TargetDir=C:\local\python39","PrependPath=0","Include_launcher=0"
+        C:\local\python39\python.exe -m pip install -U pip wheel
+        (New-Object System.Net.WebClient).DownloadFile("https://www.python.org/ftp/python/3.10.4/python-3.10.4-amd64.exe", "$env:TEMP\python310.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\python310.exe" "/passive","TargetDir=C:\local\python310","PrependPath=0","Include_launcher=0"
+        C:\local\python310\python.exe -m pip install -U pip wheel
+    - name: Build QuantLib wheels
+      env:
+        QL_DIR: C:\local\QuantLib-1.25
+        INCLUDE: C:\local\boost-1.78.0
+      run: |
+        Expand-Archive -Path QuantLib-SWIG-1.25.zip -DestinationPath C:\local
+        cd C:\local\QuantLib-SWIG-1.25\Python
+        C:\local\python37\python.exe setup.py build --static
+        C:\local\python37\python.exe setup.py bdist_wheel
+        C:\local\python38\python.exe setup.py build --static
+        C:\local\python38\python.exe setup.py bdist_wheel
+        C:\local\python39\python.exe setup.py build --static
+        C:\local\python39\python.exe setup.py bdist_wheel
+        C:\local\python310\python.exe setup.py build --static
+        C:\local\python310\python.exe setup.py bdist_wheel
+    - name: Test wheels
+      run: |
+        C:\local\python37\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
+        C:\local\python37\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
+        C:\local\python38\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
+        C:\local\python38\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
+        C:\local\python39\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
+        C:\local\python39\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
+        C:\local\python310\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
+        C:\local\python310\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
+    - name: Save wheels as artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheels-windows-64
+        path: C:\local\QuantLib-SWIG-1.25\Python\dist\*.whl
+  wheels-windows-32:
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.1
+    - name: Setup Boost
+      run: |
+        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.78.0/binaries/boost_1_78_0-msvc-14.2-32.exe"
+        (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost-1.78.0"
+    - name: Build QuantLib
+      run: |
+        Expand-Archive -Path QuantLib-1.25.zip -DestinationPath C:\local
+        Copy-Item Build.props C:\local\QuantLib-1.25\
+        Copy-Item Directory.Build.props C:\local\QuantLib-1.25\
+        cd C:\local\QuantLib-1.25\
+        msbuild QuantLib.vcxproj -p:Configuration="Release (static runtime)" -p:Platform=Win32
+        dir lib
+    - name: Install Python
+      run: |
+        (New-Object System.Net.WebClient).DownloadFile("https://www.python.org/ftp/python/3.7.9/python-3.7.9.exe", "$env:TEMP\python37.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\python37.exe" "/passive","TargetDir=C:\local\python37","PrependPath=0","Include_launcher=0"
+        C:\local\python37\python.exe -m pip install -U pip wheel
+        (New-Object System.Net.WebClient).DownloadFile("https://www.python.org/ftp/python/3.8.10/python-3.8.10.exe", "$env:TEMP\python38.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\python38.exe" "/passive","TargetDir=C:\local\python38","PrependPath=0","Include_launcher=0"
+        C:\local\python38\python.exe -m pip install -U pip wheel
+        (New-Object System.Net.WebClient).DownloadFile("https://www.python.org/ftp/python/3.9.12/python-3.9.12.exe", "$env:TEMP\python39.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\python39.exe" "/passive","TargetDir=C:\local\python39","PrependPath=0","Include_launcher=0"
+        C:\local\python39\python.exe -m pip install -U pip wheel
+        (New-Object System.Net.WebClient).DownloadFile("https://www.python.org/ftp/python/3.10.4/python-3.10.4.exe", "$env:TEMP\python310.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\python310.exe" "/passive","TargetDir=C:\local\python310","PrependPath=0","Include_launcher=0"
+        C:\local\python310\python.exe -m pip install -U pip wheel
+    - name: Build QuantLib wheels
+      env:
+        QL_DIR: C:\local\QuantLib-1.25
+        INCLUDE: C:\local\boost-1.78.0
+      run: |
+        Expand-Archive -Path QuantLib-SWIG-1.25.zip -DestinationPath C:\local
+        cd C:\local\QuantLib-SWIG-1.25\Python
+        C:\local\python37\python.exe setup.py build --static
+        C:\local\python37\python.exe setup.py bdist_wheel
+        C:\local\python38\python.exe setup.py build --static
+        C:\local\python38\python.exe setup.py bdist_wheel
+        C:\local\python39\python.exe setup.py build --static
+        C:\local\python39\python.exe setup.py bdist_wheel
+        C:\local\python310\python.exe setup.py build --static
+        C:\local\python310\python.exe setup.py bdist_wheel
+    - name: Test wheels
+      run: |
+        C:\local\python37\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
+        C:\local\python37\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
+        C:\local\python38\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
+        C:\local\python38\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
+        C:\local\python39\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
+        C:\local\python39\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
+        C:\local\python310\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
+        C:\local\python310\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
+    - name: Save wheels as artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheels-windows-32
+        path: C:\local\QuantLib-SWIG-1.25\Python\dist\*.whl
