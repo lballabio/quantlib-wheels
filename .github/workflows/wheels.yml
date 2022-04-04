@@ -185,3 +185,15 @@ jobs:
       with:
         name: wheels-windows-32
         path: C:\local\QuantLib-SWIG-1.25\Python\dist\*.whl
+  wheels-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build wheels
+      run: |
+        docker run --rm -v $PWD:/work -w /work --entrypoint ./build_manylinux.sh quay.io/pypa/manylinux2010_x86_64
+    - name: Save wheels as artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: wheels-linux
+        path: ./QuantLib-SWIG-*/Python/wheelhouse/*.whl
