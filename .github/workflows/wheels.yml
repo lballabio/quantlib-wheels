@@ -13,7 +13,7 @@ jobs:
       run: |
         tar xfz QuantLib-1.*.tar.gz
         cd QuantLib-1.*/
-        ./configure --disable-shared --enable-unity-build CXXFLAGS="-O2 -g0 -Wall -Werror -stdlib=libc++ -mmacosx-version-min=10.9" LDFLAGS="-stdlib=libc++ -mmacosx-version-min=10.9"
+        ./configure --disable-shared --enable-unity-build CXXFLAGS="-O3 -g0 -stdlib=libc++ -mmacosx-version-min=10.9" LDFLAGS="-stdlib=libc++ -mmacosx-version-min=10.9"
         make -j 4 install
     - name: Install Python
       run: |
@@ -31,7 +31,7 @@ jobs:
         /Library/Frameworks/Python.framework/Versions/3.10/bin/python3 -m pip install -U pip wheel
     - name: Build QuantLib wheels
       env:
-        CXXFLAGS: -O2 -std=c++11 -stdlib=libc++ -mmacosx-version-min=10.9
+        CXXFLAGS: -O3 -g0 -stdlib=libc++ -mmacosx-version-min=10.9
         LDFLAGS: -stdlib=libc++ -mmacosx-version-min=10.9
       run: |
         tar xfz QuantLib-SWIG-1.*.tar.gz
@@ -101,12 +101,16 @@ jobs:
         cd C:\local\QuantLib-SWIG-1.25\Python
         C:\local\python37\python.exe setup.py build --static
         C:\local\python37\python.exe setup.py bdist_wheel
+        Remove-Item build -Recurse
         C:\local\python38\python.exe setup.py build --static
         C:\local\python38\python.exe setup.py bdist_wheel
+        Remove-Item build -Recurse
         C:\local\python39\python.exe setup.py build --static
         C:\local\python39\python.exe setup.py bdist_wheel
+        Remove-Item build -Recurse
         C:\local\python310\python.exe setup.py build --static
         C:\local\python310\python.exe setup.py bdist_wheel
+        Remove-Item build -Recurse
     - name: Test wheels
       run: |
         C:\local\python37\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
@@ -164,12 +168,16 @@ jobs:
         cd C:\local\QuantLib-SWIG-1.25\Python
         C:\local\python37\python.exe setup.py build --static
         C:\local\python37\python.exe setup.py bdist_wheel
+        Remove-Item build -Recurse
         C:\local\python38\python.exe setup.py build --static
         C:\local\python38\python.exe setup.py bdist_wheel
+        Remove-Item build -Recurse
         C:\local\python39\python.exe setup.py build --static
         C:\local\python39\python.exe setup.py bdist_wheel
+        Remove-Item build -Recurse
         C:\local\python310\python.exe setup.py build --static
         C:\local\python310\python.exe setup.py bdist_wheel
+        Remove-Item build -Recurse
     - name: Test wheels
       run: |
         C:\local\python37\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
