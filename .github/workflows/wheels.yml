@@ -67,15 +67,15 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
     - name: Setup Boost
       run: |
-        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.78.0/binaries/boost_1_78_0-msvc-14.2-64.exe"
+        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.79.0/binaries/boost_1_79_0-msvc-14.2-64.exe"
         (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
-        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost-1.78.0"
+        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost-1.79.0"
     - name: Build QuantLib
       run: |
-        Expand-Archive -Path QuantLib-1.25.zip -DestinationPath C:\local
-        Copy-Item Build.props C:\local\QuantLib-1.25\
-        Copy-Item Directory.Build.props C:\local\QuantLib-1.25\
-        cd C:\local\QuantLib-1.25\
+        Expand-Archive -Path QuantLib-1.26-rc.zip -DestinationPath C:\local
+        Copy-Item Build.props C:\local\QuantLib-1.26-rc\
+        Copy-Item Directory.Build.props C:\local\QuantLib-1.26-rc\
+        cd C:\local\QuantLib-1.26-rc\
         msbuild QuantLib.vcxproj -p:Configuration="Release (static runtime)" -p:Platform=x64
         dir lib
     - name: Install Python
@@ -94,11 +94,11 @@ jobs:
         C:\local\python310\python.exe -m pip install -U pip wheel
     - name: Build QuantLib wheels
       env:
-        QL_DIR: C:\local\QuantLib-1.25
-        INCLUDE: C:\local\boost-1.78.0
+        QL_DIR: C:\local\QuantLib-1.26-rc
+        INCLUDE: C:\local\boost-1.79.0
       run: |
-        Expand-Archive -Path QuantLib-SWIG-1.25.zip -DestinationPath C:\local
-        cd C:\local\QuantLib-SWIG-1.25\Python
+        Expand-Archive -Path QuantLib-SWIG-1.26-rc.zip -DestinationPath C:\local
+        cd C:\local\QuantLib-SWIG-1.26-rc\Python
         C:\local\python37\python.exe setup.py build --static
         C:\local\python37\python.exe setup.py bdist_wheel
         Remove-Item build -Recurse
@@ -113,19 +113,19 @@ jobs:
         Remove-Item build -Recurse
     - name: Test wheels
       run: |
-        C:\local\python37\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
-        C:\local\python37\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
-        C:\local\python38\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
-        C:\local\python38\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
-        C:\local\python39\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
-        C:\local\python39\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
-        C:\local\python310\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
-        C:\local\python310\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
+        C:\local\python37\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.26-rc\Python\dist QuantLib
+        C:\local\python37\python.exe C:\local\QuantLib-SWIG-1.26-rc\Python\test\QuantLibTestSuite.py
+        C:\local\python38\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.26-rc\Python\dist QuantLib
+        C:\local\python38\python.exe C:\local\QuantLib-SWIG-1.26-rc\Python\test\QuantLibTestSuite.py
+        C:\local\python39\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.26-rc\Python\dist QuantLib
+        C:\local\python39\python.exe C:\local\QuantLib-SWIG-1.26-rc\Python\test\QuantLibTestSuite.py
+        C:\local\python310\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.26-rc\Python\dist QuantLib
+        C:\local\python310\python.exe C:\local\QuantLib-SWIG-1.26-rc\Python\test\QuantLibTestSuite.py
     - name: Save wheels as artifacts
       uses: actions/upload-artifact@v2
       with:
         name: wheels-windows-64
-        path: C:\local\QuantLib-SWIG-1.25\Python\dist\*.whl
+        path: C:\local\QuantLib-SWIG-1.26-rc\Python\dist\*.whl
   wheels-windows-32:
     runs-on: windows-2019
     steps:
@@ -134,15 +134,15 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
     - name: Setup Boost
       run: |
-        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.78.0/binaries/boost_1_78_0-msvc-14.2-32.exe"
+        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.79.0/binaries/boost_1_79_0-msvc-14.2-32.exe"
         (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
-        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost-1.78.0"
+        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost-1.79.0"
     - name: Build QuantLib
       run: |
-        Expand-Archive -Path QuantLib-1.25.zip -DestinationPath C:\local
-        Copy-Item Build.props C:\local\QuantLib-1.25\
-        Copy-Item Directory.Build.props C:\local\QuantLib-1.25\
-        cd C:\local\QuantLib-1.25\
+        Expand-Archive -Path QuantLib-1.26-rc.zip -DestinationPath C:\local
+        Copy-Item Build.props C:\local\QuantLib-1.26-rc\
+        Copy-Item Directory.Build.props C:\local\QuantLib-1.26-rc\
+        cd C:\local\QuantLib-1.26-rc\
         msbuild QuantLib.vcxproj -p:Configuration="Release (static runtime)" -p:Platform=Win32
         dir lib
     - name: Install Python
@@ -161,11 +161,11 @@ jobs:
         C:\local\python310\python.exe -m pip install -U pip wheel
     - name: Build QuantLib wheels
       env:
-        QL_DIR: C:\local\QuantLib-1.25
-        INCLUDE: C:\local\boost-1.78.0
+        QL_DIR: C:\local\QuantLib-1.26-rc
+        INCLUDE: C:\local\boost-1.79.0
       run: |
-        Expand-Archive -Path QuantLib-SWIG-1.25.zip -DestinationPath C:\local
-        cd C:\local\QuantLib-SWIG-1.25\Python
+        Expand-Archive -Path QuantLib-SWIG-1.26-rc.zip -DestinationPath C:\local
+        cd C:\local\QuantLib-SWIG-1.26-rc\Python
         C:\local\python37\python.exe setup.py build --static
         C:\local\python37\python.exe setup.py bdist_wheel
         Remove-Item build -Recurse
@@ -180,19 +180,19 @@ jobs:
         Remove-Item build -Recurse
     - name: Test wheels
       run: |
-        C:\local\python37\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
-        C:\local\python37\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
-        C:\local\python38\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
-        C:\local\python38\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
-        C:\local\python39\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
-        C:\local\python39\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
-        C:\local\python310\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.25\Python\dist QuantLib
-        C:\local\python310\python.exe C:\local\QuantLib-SWIG-1.25\Python\test\QuantLibTestSuite.py
+        C:\local\python37\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.26-rc\Python\dist QuantLib
+        C:\local\python37\python.exe C:\local\QuantLib-SWIG-1.26-rc\Python\test\QuantLibTestSuite.py
+        C:\local\python38\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.26-rc\Python\dist QuantLib
+        C:\local\python38\python.exe C:\local\QuantLib-SWIG-1.26-rc\Python\test\QuantLibTestSuite.py
+        C:\local\python39\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.26-rc\Python\dist QuantLib
+        C:\local\python39\python.exe C:\local\QuantLib-SWIG-1.26-rc\Python\test\QuantLibTestSuite.py
+        C:\local\python310\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.26-rc\Python\dist QuantLib
+        C:\local\python310\python.exe C:\local\QuantLib-SWIG-1.26-rc\Python\test\QuantLibTestSuite.py
     - name: Save wheels as artifacts
       uses: actions/upload-artifact@v2
       with:
         name: wheels-windows-32
-        path: C:\local\QuantLib-SWIG-1.25\Python\dist\*.whl
+        path: C:\local\QuantLib-SWIG-1.26-rc\Python\dist\*.whl
   wheels-linux:
     runs-on: ubuntu-latest
     steps:
