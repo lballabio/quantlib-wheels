@@ -1,0 +1,26 @@
+name: Generate docs
+on: push
+jobs:
+  docs:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup
+      run: |
+        rm -f /usr/local/bin/2to3
+        brew update
+        brew install automake boost doxygen graphviz
+    - name: Doxygen version
+      run: |
+        doxygen --version
+    - name: Generate docs
+      run: |
+        tar xfz QuantLib-1.*.tar.gz
+        cd QuantLib-1.*/
+        ./configure
+        make docs
+    - name: Save docs as artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: reference-docs
+        path: ./QuantLib-1.*/Docs/html/
