@@ -72,10 +72,10 @@ jobs:
         Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost-1.79.0"
     - name: Build QuantLib
       run: |
-        Expand-Archive -Path QuantLib-1.27.zip -DestinationPath C:\local
-        Copy-Item Build.props C:\local\QuantLib-1.27\
-        Copy-Item Directory.Build.props C:\local\QuantLib-1.27\
-        cd C:\local\QuantLib-1.27\
+        Expand-Archive -Path QuantLib-1.27.1.zip -DestinationPath C:\local
+        Copy-Item Build.props C:\local\QuantLib-1.27.1\
+        Copy-Item Directory.Build.props C:\local\QuantLib-1.27.1\
+        cd C:\local\QuantLib-1.27.1\
         msbuild QuantLib.vcxproj -p:Configuration="Release (static runtime)" -p:Platform=x64
         dir lib
     - name: Install Python
@@ -94,7 +94,7 @@ jobs:
         C:\local\python310\python.exe -m pip install -U pip wheel
     - name: Build QuantLib wheels
       env:
-        QL_DIR: C:\local\QuantLib-1.27
+        QL_DIR: C:\local\QuantLib-1.27.1
         INCLUDE: C:\local\boost-1.79.0
       run: |
         Expand-Archive -Path QuantLib-SWIG-1.27.zip -DestinationPath C:\local
@@ -139,10 +139,10 @@ jobs:
         Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost-1.79.0"
     - name: Build QuantLib
       run: |
-        Expand-Archive -Path QuantLib-1.27.zip -DestinationPath C:\local
-        Copy-Item Build.props C:\local\QuantLib-1.27\
-        Copy-Item Directory.Build.props C:\local\QuantLib-1.27\
-        cd C:\local\QuantLib-1.27\
+        Expand-Archive -Path QuantLib-1.27.1.zip -DestinationPath C:\local
+        Copy-Item Build.props C:\local\QuantLib-1.27.1\
+        Copy-Item Directory.Build.props C:\local\QuantLib-1.27.1\
+        cd C:\local\QuantLib-1.27.1\
         msbuild QuantLib.vcxproj -p:Configuration="Release (static runtime)" -p:Platform=Win32
         dir lib
     - name: Install Python
@@ -161,7 +161,7 @@ jobs:
         C:\local\python310\python.exe -m pip install -U pip wheel
     - name: Build QuantLib wheels
       env:
-        QL_DIR: C:\local\QuantLib-1.27
+        QL_DIR: C:\local\QuantLib-1.27.1
         INCLUDE: C:\local\boost-1.79.0
       run: |
         Expand-Archive -Path QuantLib-SWIG-1.27.zip -DestinationPath C:\local
