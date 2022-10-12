@@ -1,0 +1,51 @@
+name: Build C# wrappers
+on: push
+jobs:
+  dotnet-windows-64:
+    runs-on: windows-2022
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.1
+    - name: Setup Boost
+      run: |
+        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.80.0/binaries/boost_1_80_0-msvc-14.3-64.exe"
+        (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost-1.80.0"
+    - name: Build QuantLib
+      run: |
+        Expand-Archive -Path QuantLib-1.28-rc.zip -DestinationPath C:\local
+        Copy-Item Build-2022.props C:\local\QuantLib-1.28-rc\Build.props
+        Copy-Item Directory.Build.props C:\local\QuantLib-1.28-rc\
+        Copy-Item userconfig.hpp C:\local\QuantLib-1.28-rc\ql\userconfig.hpp
+        cd C:\local\QuantLib-1.28-rc\
+        msbuild QuantLib.vcxproj -p:Configuration="Release" -p:Platform=x64
+        dir lib
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '6.0.x'
+    - name: Build QuantLib wrappers
+      env:
+        QL_DIR: C:\local\QuantLib-1.28-rc
+      run: |
+        Expand-Archive -Path QuantLib-SWIG-1.28-rc.zip -DestinationPath C:\local
+        Copy-Item Build-2022.props C:\local\QuantLib-SWIG-1.28-rc\CSharp\cpp\Build.props
+        cd C:\local\QuantLib-SWIG-1.28-rc\CSharp\cpp
+        msbuild QuantLibWrapper.vcxproj -p:Configuration="Release" -p:Platform=x64
+        cd C:\local\QuantLib-SWIG-1.28-rc\CSharp\csharp
+        dotnet build -c Release
+    - name: Run C# examples
+      run: |
+        cd C:\local\QuantLib-SWIG-1.28-rc\CSharp\examples\BermudanSwaption
+        dotnet build -c Release
+        dotnet run -c Release
+        cd C:\local\QuantLib-SWIG-1.28-rc\CSharp\examples\EquityOption
+        dotnet build -c Release
+        dotnet run -c Release
+        cd C:\local\QuantLib-SWIG-1.28-rc\CSharp\examples\FiniteDifferenceMethods
+        dotnet build -c Release
+        dotnet run -c Release
+        cd C:\local\QuantLib-SWIG-1.28-rc\CSharp\examples\Times
+        dotnet build -c Release
+        dotnet run -c Release

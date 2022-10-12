@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Setup Boost
-curl -O -L https://boostorg.jfrog.io/artifactory/main/release/1.79.0/source/boost_1_79_0.tar.gz
-tar xfz boost_1_79_0.tar.gz
-cd boost_1_79_0
+curl -O -L https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz
+tar xfz boost_1_80_0.tar.gz
+cd boost_1_80_0
 mv boost /usr/local/include/
 cd ..
 
