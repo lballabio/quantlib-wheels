@@ -3,6 +3,10 @@ on: push
 jobs:
   wheels-macos:
     runs-on: macos-11
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, arm64]
     steps:
     - uses: actions/checkout@v3
     - name: Setup
@@ -13,52 +17,27 @@ jobs:
       run: |
         tar xfz QuantLib-1.*.tar.gz
         cd QuantLib-1.*/
-        ./configure --disable-shared --enable-unity-build CXXFLAGS="-O3 -g0 -stdlib=libc++ -mmacosx-version-min=10.9" LDFLAGS="-stdlib=libc++ -mmacosx-version-min=10.9"
-        make -j 4 install
-    - name: Install Python
-      run: |
-        wget https://www.python.org/ftp/python/3.7.9/python-3.7.9-macosx10.9.pkg
-        sudo installer -pkg python-3.7.9-macosx10.9.pkg -target LocalSystem
-        /Library/Frameworks/Python.framework/Versions/3.7/bin/python3 -m pip install -U pip wheel
-        wget https://www.python.org/ftp/python/3.8.10/python-3.8.10-macosx10.9.pkg
-        sudo installer -pkg python-3.8.10-macosx10.9.pkg -target LocalSystem
-        /Library/Frameworks/Python.framework/Versions/3.8/bin/python3 -m pip install -U pip wheel
-        wget https://www.python.org/ftp/python/3.9.13/python-3.9.13-macos11.pkg
-        sudo installer -pkg python-3.9.13-macos11.pkg -target LocalSystem
-        /Library/Frameworks/Python.framework/Versions/3.9/bin/python3 -m pip install -U pip wheel
-        wget https://www.python.org/ftp/python/3.10.8/python-3.10.8-macos11.pkg
-        sudo installer -pkg python-3.10.8-macos11.pkg -target LocalSystem
-        /Library/Frameworks/Python.framework/Versions/3.10/bin/python3 -m pip install -U pip wheel
-    - name: Build QuantLib wheels
-      env:
-        CXXFLAGS: -O3 -g0 -stdlib=libc++ -mmacosx-version-min=10.9
-        LDFLAGS: -stdlib=libc++ -mmacosx-version-min=10.9
+        ./configure --disable-shared --enable-unity-build
+        make -j2 CXXFLAGS="-std=c++14 -g0 -O3 -fno-common -dynamic -DNDEBUG -fwrapv -arch ${{ matrix.arch }}" LDFLAGS="-fno-common -dynamic -DNDEBUG -fwrapv -arch ${{ matrix.arch }}"
+        make install
+    - name: Unpack QuantLib-SWIG
       run: |
         tar xfz QuantLib-SWIG-1.*.tar.gz
-        cd QuantLib-SWIG-1.*/Python
-        /Library/Frameworks/Python.framework/Versions/3.7/bin/python3 setup.py bdist_wheel
-        rm -rf build/
-        /Library/Frameworks/Python.framework/Versions/3.8/bin/python3 setup.py bdist_wheel
-        rm -rf build/
-        /Library/Frameworks/Python.framework/Versions/3.9/bin/python3 setup.py bdist_wheel
-        rm -rf build/
-        /Library/Frameworks/Python.framework/Versions/3.10/bin/python3 setup.py bdist_wheel
-        rm -rf build/
-    - name: Test wheels
-      run: |
-        /Library/Frameworks/Python.framework/Versions/3.7/bin/python3 -m pip install --no-index --find-links QuantLib-SWIG-1.*/Python/dist/ QuantLib
-        /Library/Frameworks/Python.framework/Versions/3.7/bin/python3 QuantLib-SWIG-*/Python/test/QuantLibTestSuite.py
-        /Library/Frameworks/Python.framework/Versions/3.8/bin/python3 -m pip install --no-index --find-links QuantLib-SWIG-1.*/Python/dist/ QuantLib
-        /Library/Frameworks/Python.framework/Versions/3.8/bin/python3 QuantLib-SWIG-*/Python/test/QuantLibTestSuite.py
-        /Library/Frameworks/Python.framework/Versions/3.9/bin/python3 -m pip install --no-index --find-links QuantLib-SWIG-1.*/Python/dist/ QuantLib
-        /Library/Frameworks/Python.framework/Versions/3.9/bin/python3 QuantLib-SWIG-*/Python/test/QuantLibTestSuite.py
-        /Library/Frameworks/Python.framework/Versions/3.10/bin/python3 -m pip install --no-index --find-links QuantLib-SWIG-1.*/Python/dist/ QuantLib
-        /Library/Frameworks/Python.framework/Versions/3.10/bin/python3 QuantLib-SWIG-*/Python/test/QuantLibTestSuite.py
+    - name: Build QuantLib wheels
+      uses: pypa/cibuildwheel@v2.11.1
+      env:
+        CIBW_SKIP: cp{36,311}-*
+        CIBW_ARCHS_MACOS: ${{ matrix.arch }}
+        CXXFLAGS: -std=c++14 -g0 -O3
+        CIBW_BUILD_VERBOSITY: 2
+        CIBW_TEST_COMMAND: python {package}/test/QuantLibTestSuite.py
+      with:
+        package-dir: QuantLib-SWIG-*/Python
     - name: Save wheels as artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: wheels-macos
-        path: ./QuantLib-SWIG-*/Python/dist/*.whl
+        name: wheels-macos-${{ matrix.arch }}
+        path: ./wheelhouse/*.whl
   wheels-windows-64:
     runs-on: windows-2019
     steps:
