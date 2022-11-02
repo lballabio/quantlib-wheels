@@ -19,6 +19,8 @@ ldconfig
 
 tar xfz QuantLib-SWIG-1.*.tar.gz
 cd QuantLib-SWIG-1.*/Python
+CXXFLAGS='-O3 -g0' /opt/python/cp311-cp311/bin/python setup.py bdist_wheel
+rm -rf build/
 CXXFLAGS='-O3 -g0' /opt/python/pp39-pypy39_pp73/bin/pypy setup.py bdist_wheel
 rm -rf build/
 for i in dist/*.whl ; do auditwheel repair $i ; done
@@ -26,6 +28,8 @@ cd ../..
 
 # Test wheels
 rm -rf /usr/local/lib/libQuantLib*
+/opt/python/cp311-cp311/bin/python -m pip install --no-index --find-links QuantLib-SWIG-1.*/Python/wheelhouse/ QuantLib
+/opt/python/cp311-cp311/bin/python QuantLib-SWIG-*/Python/test/QuantLibTestSuite.py
 /opt/python/pp39-pypy39_pp73/bin/pypy -m pip install --no-index --find-links QuantLib-SWIG-1.*/Python/wheelhouse/ QuantLib
 /opt/python/pp39-pypy39_pp73/bin/pypy QuantLib-SWIG-*/Python/test/QuantLibTestSuite.py
 

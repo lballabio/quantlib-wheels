@@ -26,7 +26,7 @@ jobs:
     - name: Build QuantLib wheels
       uses: pypa/cibuildwheel@v2.11.1
       env:
-        CIBW_SKIP: cp{36,311}-*
+        CIBW_SKIP: cp36-*
         CIBW_ARCHS_MACOS: ${{ matrix.arch }}
         CXXFLAGS: -std=c++14 -g0 -O3
         CIBW_BUILD_VERBOSITY: 2
@@ -71,6 +71,9 @@ jobs:
         (New-Object System.Net.WebClient).DownloadFile("https://www.python.org/ftp/python/3.10.8/python-3.10.8-amd64.exe", "$env:TEMP\python310.exe")
         Start-Process -Wait -FilePath "$env:TEMP\python310.exe" "/passive","TargetDir=C:\local\python310","PrependPath=0","Include_launcher=0"
         C:\local\python310\python.exe -m pip install -U pip wheel
+        (New-Object System.Net.WebClient).DownloadFile("https://www.python.org/ftp/python/3.11.0/python-3.11.0-amd64.exe", "$env:TEMP\python311.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\python311.exe" "/passive","TargetDir=C:\local\python311","PrependPath=0","Include_launcher=0"
+        C:\local\python311\python.exe -m pip install -U pip wheel
     - name: Build QuantLib wheels
       env:
         QL_DIR: C:\local\QuantLib-1.28
@@ -90,6 +93,9 @@ jobs:
         C:\local\python310\python.exe setup.py build --static
         C:\local\python310\python.exe setup.py bdist_wheel
         Remove-Item build -Recurse
+        C:\local\python311\python.exe setup.py build --static
+        C:\local\python311\python.exe setup.py bdist_wheel
+        Remove-Item build -Recurse
     - name: Test wheels
       run: |
         C:\local\python37\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.28\Python\dist QuantLib
@@ -100,6 +106,8 @@ jobs:
         C:\local\python39\python.exe C:\local\QuantLib-SWIG-1.28\Python\test\QuantLibTestSuite.py
         C:\local\python310\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.28\Python\dist QuantLib
         C:\local\python310\python.exe C:\local\QuantLib-SWIG-1.28\Python\test\QuantLibTestSuite.py
+        C:\local\python311\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.28\Python\dist QuantLib
+        C:\local\python311\python.exe C:\local\QuantLib-SWIG-1.28\Python\test\QuantLibTestSuite.py
     - name: Save wheels as artifacts
       uses: actions/upload-artifact@v3
       with:
@@ -138,6 +146,9 @@ jobs:
         (New-Object System.Net.WebClient).DownloadFile("https://www.python.org/ftp/python/3.10.8/python-3.10.8.exe", "$env:TEMP\python310.exe")
         Start-Process -Wait -FilePath "$env:TEMP\python310.exe" "/passive","TargetDir=C:\local\python310","PrependPath=0","Include_launcher=0"
         C:\local\python310\python.exe -m pip install -U pip wheel
+        (New-Object System.Net.WebClient).DownloadFile("https://www.python.org/ftp/python/3.11.0/python-3.11.0.exe", "$env:TEMP\python311.exe")
+        Start-Process -Wait -FilePath "$env:TEMP\python311.exe" "/passive","TargetDir=C:\local\python311","PrependPath=0","Include_launcher=0"
+        C:\local\python311\python.exe -m pip install -U pip wheel
     - name: Build QuantLib wheels
       env:
         QL_DIR: C:\local\QuantLib-1.28
@@ -157,6 +168,9 @@ jobs:
         C:\local\python310\python.exe setup.py build --static
         C:\local\python310\python.exe setup.py bdist_wheel
         Remove-Item build -Recurse
+        C:\local\python311\python.exe setup.py build --static
+        C:\local\python311\python.exe setup.py bdist_wheel
+        Remove-Item build -Recurse
     - name: Test wheels
       run: |
         C:\local\python37\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.28\Python\dist QuantLib
@@ -167,6 +181,8 @@ jobs:
         C:\local\python39\python.exe C:\local\QuantLib-SWIG-1.28\Python\test\QuantLibTestSuite.py
         C:\local\python310\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.28\Python\dist QuantLib
         C:\local\python310\python.exe C:\local\QuantLib-SWIG-1.28\Python\test\QuantLibTestSuite.py
+        C:\local\python311\python.exe -m pip install --no-index --find-links C:\local\QuantLib-SWIG-1.28\Python\dist QuantLib
+        C:\local\python311\python.exe C:\local\QuantLib-SWIG-1.28\Python\test\QuantLibTestSuite.py
     - name: Save wheels as artifacts
       uses: actions/upload-artifact@v3
       with:
