@@ -12,12 +12,11 @@ jobs:
     - name: Setup
       run: |
         brew install boost
-        rm /usr/local/lib/libboost_unit_test_framework*
     - name: Build QuantLib
       run: |
         tar xfz QuantLib-1.*.tar.gz
         cd QuantLib-1.*/
-        ./configure --disable-shared --enable-unity-build
+        ./configure --disable-shared --enable-unity-build --disable-test-suite
         make -j2 CXXFLAGS="-std=c++14 -g0 -O3 -fno-common -dynamic -DNDEBUG -fwrapv -arch ${{ matrix.arch }}" LDFLAGS="-fno-common -dynamic -DNDEBUG -fwrapv -arch ${{ matrix.arch }}"
         make install
     - name: Unpack QuantLib-SWIG
@@ -54,9 +53,9 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
     - name: Setup Boost
       run: |
-        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.80.0/binaries/boost_1_80_0-msvc-14.2-64.exe"
+        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.81.0/binaries/boost_1_81_0-msvc-14.2-64.exe"
         (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
-        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost-1.80.0"
+        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost"
     - name: Build QuantLib
       run: |
         Expand-Archive -Path QuantLib-1.28.zip -DestinationPath C:\local
@@ -72,7 +71,7 @@ jobs:
       uses: pypa/cibuildwheel@v2.11.1
       env:
         QL_DIR: C:\local\QuantLib-1.28
-        INCLUDE: C:\local\boost-1.80.0
+        INCLUDE: C:\local\boost
         QL_STATIC_RUNTIME: 1
         CIBW_SKIP: cp36-*
         CIBW_ARCHS_WINDOWS: ${{ matrix.arch }}
@@ -92,9 +91,6 @@ jobs:
       matrix:
         arch: [x86_64, i686]
         image: [manylinux, musllinux]
-        exclude:
-          - arch: i686
-            image: musllinux
     steps:
     - uses: actions/checkout@v3
     - name: Unpack QuantLib and QuantLib-SWIG
@@ -109,7 +105,6 @@ jobs:
         CIBW_ARCHS_LINUX: ${{ matrix.arch }}
         CIBW_BUILD_VERBOSITY: 2
         CIBW_BEFORE_ALL_LINUX: ./before_all_linux.sh
-        CIBW_BEFORE_BUILD_LINUX: ./before_build_linux.sh
         CIBW_ENVIRONMENT_LINUX: CXXFLAGS='-O3 -g0'
         CIBW_ENVIRONMENT_PASS_LINUX: CXXFLAGS
         CIBW_TEST_COMMAND: python {package}/test/QuantLibTestSuite.py

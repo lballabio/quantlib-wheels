@@ -9,9 +9,9 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
     - name: Setup Boost
       run: |
-        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.80.0/binaries/boost_1_80_0-msvc-14.3-64.exe"
+        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.81.0/binaries/boost_1_81_0-msvc-14.3-64.exe"
         (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
-        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost-1.80.0"
+        Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost"
     - name: Build QuantLib
       run: |
         Expand-Archive -Path QuantLib-1.28.zip -DestinationPath C:\local
