@@ -59,7 +59,7 @@ jobs:
     - name: Build QuantLib
       run: |
         Expand-Archive -Path QuantLib-1.29.zip -DestinationPath C:\local
-        Copy-Item Build-2019.props C:\local\QuantLib-1.29\Build.props
+        Copy-Item Build.props C:\local\QuantLib-1.29\
         Copy-Item Directory.Build.props C:\local\QuantLib-1.29\
         cd C:\local\QuantLib-1.29\
         msbuild QuantLib.vcxproj -p:Configuration="Release (static runtime)" -p:Platform=${{ matrix.platform }}

@@ -15,7 +15,7 @@ jobs:
     - name: Build QuantLib
       run: |
         Expand-Archive -Path QuantLib-1.29.zip -DestinationPath C:\local
-        Copy-Item Build-2022.props C:\local\QuantLib-1.29\Build.props
+        Copy-Item Build.props C:\local\QuantLib-1.29\
         Copy-Item Directory.Build.props C:\local\QuantLib-1.29\
         Copy-Item userconfig.hpp C:\local\QuantLib-1.29\ql\userconfig.hpp
         cd C:\local\QuantLib-1.29\
@@ -30,7 +30,7 @@ jobs:
         QL_DIR: C:\local\QuantLib-1.29
       run: |
         Expand-Archive -Path QuantLib-SWIG-1.29.zip -DestinationPath C:\local
-        Copy-Item Build-2022.props C:\local\QuantLib-SWIG-1.29\CSharp\cpp\Build.props
+        Copy-Item Build.props C:\local\QuantLib-SWIG-1.29\CSharp\cpp\
         cd C:\local\QuantLib-SWIG-1.29\CSharp\cpp
         msbuild QuantLibWrapper.vcxproj -p:Configuration="Release" -p:Platform=x64
         cd C:\local\QuantLib-SWIG-1.29\CSharp\csharp
