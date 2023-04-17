@@ -2,7 +2,7 @@
 set -e
 
 # Setup Boost
-curl -O -L https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.gz
+curl -O -L https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.gz
 tar xfz boost_*.tar.gz
 cd boost_*/
 mv boost /usr/local/include/

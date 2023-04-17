@@ -58,19 +58,19 @@ jobs:
         Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost"
     - name: Build QuantLib
       run: |
-        Expand-Archive -Path QuantLib-1.29.zip -DestinationPath C:\local
-        Copy-Item Build.props C:\local\QuantLib-1.29\
-        Copy-Item Directory.Build.props C:\local\QuantLib-1.29\
-        cd C:\local\QuantLib-1.29\
+        Expand-Archive -Path QuantLib-1.30.zip -DestinationPath C:\local
+        Copy-Item Build.props C:\local\QuantLib-1.30\
+        Copy-Item Directory.Build.props C:\local\QuantLib-1.30\
+        cd C:\local\QuantLib-1.30\
         msbuild QuantLib.vcxproj -p:Configuration="Release (static runtime)" -p:Platform=${{ matrix.platform }}
         dir lib
     - name: Unpack QuantLib-SWIG
       run: |
-        Expand-Archive -Path QuantLib-SWIG-1.29.zip -DestinationPath .
+        Expand-Archive -Path QuantLib-SWIG-1.30.zip -DestinationPath .
     - name: Build QuantLib wheels
       uses: pypa/cibuildwheel@v2.11.1
       env:
-        QL_DIR: C:\local\QuantLib-1.29
+        QL_DIR: C:\local\QuantLib-1.30
         INCLUDE: C:\local\boost
         QL_STATIC_RUNTIME: 1
         CIBW_SKIP: cp36-*
@@ -78,7 +78,7 @@ jobs:
         CIBW_BUILD_VERBOSITY: 2
         CIBW_TEST_COMMAND: python {package}/test/QuantLibTestSuite.py
       with:
-        package-dir: QuantLib-SWIG-1.29/Python
+        package-dir: QuantLib-SWIG-1.30/Python
     - name: Save wheels as artifacts
       uses: actions/upload-artifact@v3
       with:
