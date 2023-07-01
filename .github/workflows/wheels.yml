@@ -16,7 +16,7 @@ jobs:
       run: |
         tar xfz QuantLib-1.*.tar.gz
         cd QuantLib-1.*/
-        ./configure --disable-shared --enable-unity-build --disable-test-suite
+        ./configure --disable-shared --enable-unity-build --disable-test-suite --enable-skip-examples
         make -j2 CXXFLAGS="-std=c++14 -g0 -O3 -fno-common -dynamic -DNDEBUG -fwrapv -arch ${{ matrix.arch }}" LDFLAGS="-fno-common -dynamic -DNDEBUG -fwrapv -arch ${{ matrix.arch }}"
         make install
     - name: Unpack QuantLib-SWIG
