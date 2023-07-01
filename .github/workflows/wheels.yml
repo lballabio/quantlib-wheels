@@ -120,3 +120,38 @@ jobs:
       with:
         name: wheels-linux-${{ matrix.image }}-${{ matrix.arch }}
         path: ./wheelhouse/*.whl
+  test-publish:
+    runs-on: ubuntu-latest
+    needs: [ wheels-macos, wheels-windows, wheels-linux ]
+    environment: testpypi
+    permissions:
+      id-token: write
+    steps:
+    - uses: actions/download-artifact@v3
+    - name: Collect wheels
+      run: |
+        mkdir ./wheelhouse
+        cp ./wheels-*/*.whl ./wheelhouse
+        ls -l ./wheelhouse
+    - name: Publish package to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        packages-dir: ./wheelhouse
+  publish:
+    runs-on: ubuntu-latest
+    needs: test-publish
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+    - uses: actions/download-artifact@v3
+    - name: Collect wheels
+      run: |
+        mkdir ./wheelhouse
+        cp ./wheels-*/*.whl ./wheelhouse
+        ls -l ./wheelhouse
+    - name: Publish package to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages-dir: ./wheelhouse
