@@ -14,11 +14,11 @@ jobs:
         Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost"
     - name: Build QuantLib
       run: |
-        Expand-Archive -Path QuantLib-1.30.zip -DestinationPath C:\local
-        Copy-Item Build.props C:\local\QuantLib-1.30\
-        Copy-Item Directory.Build.props C:\local\QuantLib-1.30\
-        Copy-Item userconfig.hpp C:\local\QuantLib-1.30\ql\userconfig.hpp
-        cd C:\local\QuantLib-1.30\
+        Expand-Archive -Path QuantLib-1.31.zip -DestinationPath C:\local
+        Copy-Item Build.props C:\local\QuantLib-1.31\
+        Copy-Item Directory.Build.props C:\local\QuantLib-1.31\
+        Copy-Item userconfig.hpp C:\local\QuantLib-1.31\ql\userconfig.hpp
+        cd C:\local\QuantLib-1.31\
         msbuild QuantLib.vcxproj -p:Configuration="Release" -p:Platform=x64
         dir lib
     - name: Setup .NET
@@ -27,25 +27,25 @@ jobs:
         dotnet-version: '6.0.x'
     - name: Build QuantLib wrappers
       env:
-        QL_DIR: C:\local\QuantLib-1.30
+        QL_DIR: C:\local\QuantLib-1.31
       run: |
-        Expand-Archive -Path QuantLib-SWIG-1.30.zip -DestinationPath C:\local
-        Copy-Item Build.props C:\local\QuantLib-SWIG-1.30\CSharp\cpp\
-        cd C:\local\QuantLib-SWIG-1.30\CSharp\cpp
+        Expand-Archive -Path QuantLib-SWIG-1.31.zip -DestinationPath C:\local
+        Copy-Item Build.props C:\local\QuantLib-SWIG-1.31\CSharp\cpp\
+        cd C:\local\QuantLib-SWIG-1.31\CSharp\cpp
         msbuild QuantLibWrapper.vcxproj -p:Configuration="Release" -p:Platform=x64
-        cd C:\local\QuantLib-SWIG-1.30\CSharp\csharp
+        cd C:\local\QuantLib-SWIG-1.31\CSharp\csharp
         dotnet build -c Release
     - name: Run C# examples
       run: |
-        cd C:\local\QuantLib-SWIG-1.30\CSharp\examples\BermudanSwaption
+        cd C:\local\QuantLib-SWIG-1.31\CSharp\examples\BermudanSwaption
         dotnet build -c Release
         dotnet run -c Release
-        cd C:\local\QuantLib-SWIG-1.30\CSharp\examples\EquityOption
+        cd C:\local\QuantLib-SWIG-1.31\CSharp\examples\EquityOption
         dotnet build -c Release
         dotnet run -c Release
-        cd C:\local\QuantLib-SWIG-1.30\CSharp\examples\FiniteDifferenceMethods
+        cd C:\local\QuantLib-SWIG-1.31\CSharp\examples\FiniteDifferenceMethods
         dotnet build -c Release
         dotnet run -c Release
-        cd C:\local\QuantLib-SWIG-1.30\CSharp\examples\Times
+        cd C:\local\QuantLib-SWIG-1.31\CSharp\examples\Times
         dotnet build -c Release
         dotnet run -c Release
