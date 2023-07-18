@@ -89,7 +89,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x86_64, i686, aarch64]
+        arch: [x86_64, i686]
         image: [manylinux, musllinux]
     steps:
     - uses: actions/checkout@v3
