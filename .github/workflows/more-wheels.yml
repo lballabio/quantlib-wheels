@@ -31,7 +31,7 @@ jobs:
         CIBW_ENVIRONMENT_PASS_LINUX: CXXFLAGS CXXQLFLAGS
         CIBW_TEST_COMMAND: python {package}/test/QuantLibTestSuite.py
       with:
-        package-dir: ./QuantLib-SWIG-1.31.1/Python
+        package-dir: ./QuantLib-SWIG-1.32/Python
     - name: Save wheels as artifacts
       uses: actions/upload-artifact@v3
       with:
