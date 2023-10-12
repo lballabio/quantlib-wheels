@@ -1,7 +1,7 @@
 name: Build C# wrappers
 on: push
 jobs:
-  dotnet-windows-64:
+  dotnet-win-wrap:
     runs-on: windows-2022
     steps:
     - uses: actions/checkout@v3
@@ -9,7 +9,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
     - name: Setup Boost
       run: |
-        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.81.0/binaries/boost_1_81_0-msvc-14.3-64.exe"
+        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.83.0/binaries/boost_1_83_0-msvc-14.3-64.exe"
         (New-Object System.Net.WebClient).DownloadFile($Url, "$env:TEMP\boost.exe")
         Start-Process -Wait -FilePath "$env:TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost"
     - name: Build QuantLib
@@ -17,14 +17,10 @@ jobs:
         Expand-Archive -Path QuantLib-1.32.zip -DestinationPath C:\local
         Copy-Item Build.props C:\local\QuantLib-1.32\
         Copy-Item Directory.Build.props C:\local\QuantLib-1.32\
-        Copy-Item userconfig.hpp C:\local\QuantLib-1.32\ql\userconfig.hpp
+        Copy-Item dotnet\userconfig.hpp C:\local\QuantLib-1.32\ql\userconfig.hpp
         cd C:\local\QuantLib-1.32\
         msbuild QuantLib.vcxproj -p:Configuration="Release" -p:Platform=x64
         dir lib
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '6.0.x'
     - name: Build QuantLib wrappers
       env:
         QL_DIR: C:\local\QuantLib-1.32
@@ -33,19 +29,227 @@ jobs:
         Copy-Item Build.props C:\local\QuantLib-SWIG-1.32\CSharp\cpp\
         cd C:\local\QuantLib-SWIG-1.32\CSharp\cpp
         msbuild QuantLibWrapper.vcxproj -p:Configuration="Release" -p:Platform=x64
+    - name: Save DLL as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: dll-win-x64
+        path: C:\local\QuantLib-SWIG-1.32\CSharp\cpp\NQuantLibc.dll
+
+  dotnet-osx-wrap:
+    runs-on: macos-11
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, arm64]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Boost
+      run: |
+        brew install boost
+    - name: Build QuantLib
+      run: |
+        tar xfz QuantLib-1.*.tar.gz
+        cd QuantLib-1.*/
+        ./configure --disable-shared --enable-thread-safe-observer-pattern --enable-sessions --enable-unity-build --disable-test-suite --enable-skip-examples
+        make -j3 CXXFLAGS="-std=c++14 -g0 -O3 -arch ${{ matrix.arch }}" LDFLAGS="-arch ${{ matrix.arch }}"
+        make install
+    - name: Build QuantLib wrappers
+      run: |
+        tar xfz QuantLib-SWIG-1.*.tar.gz
+        cd QuantLib-SWIG-1.*/CSharp
+        clang++ -c -fpic -std=c++14 -g0 -O3 -arch ${{ matrix.arch }} cpp/quantlib_wrap.cpp -o cpp/quantlib_wrap.o `quantlib-config --cflags`
+        clang++ -shared -arch ${{ matrix.arch }} cpp/quantlib_wrap.o -o cpp/libNQuantLibc.dylib `quantlib-config --libs`
+    - name: Save DLL as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: dll-osx-${{ matrix.arch }}
+        path: ./QuantLib-SWIG-1.32/CSharp/cpp/libNQuantLibc.dylib
+
+  dotnet-linux-wrap:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup Boost
+      run: |
+        curl -O -L https://boostorg.jfrog.io/artifactory/main/release/1.83.0/source/boost_1_83_0.tar.gz
+        tar xfz boost_*.tar.gz
+        cd boost_*/
+        sudo mv boost /usr/local/include/
+    - name: Build QuantLib
+      run: |
+        tar xfz QuantLib-1.*.tar.gz
+        cd QuantLib-1.*/
+        ./configure --disable-shared --enable-thread-safe-observer-pattern --enable-sessions --enable-unity-build --disable-test-suite --enable-skip-examples
+        make -j2 CXXFLAGS="-g0 -O3 -fPIC"
+        sudo make install
+    - name: Build QuantLib wrappers
+      run: |
+        tar xfz QuantLib-SWIG-1.*.tar.gz
+        cd QuantLib-SWIG-1.*/CSharp
+        g++ -c -g0 -O3 -fPIC cpp/quantlib_wrap.cpp -o cpp/quantlib_wrap.o `quantlib-config --cflags`
+        g++ -shared cpp/quantlib_wrap.o -o cpp/libNQuantLibc.so `quantlib-config --libs`
+    - name: Save DLL as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: dll-linux-x64
+        path: ./QuantLib-SWIG-1.32/CSharp/cpp/libNQuantLibc.so
+
+  dotnet-nupkg:
+    runs-on: windows-2022
+    needs: [dotnet-win-wrap, dotnet-osx-wrap, dotnet-linux-wrap]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.0.x'
+    - name: Extract QuantLib-SWIG
+      run: |
+        Expand-Archive -Path QuantLib-SWIG-1.32.zip -DestinationPath C:\local
+    - uses: actions/download-artifact@v3
+      with:
+        name: dll-win-x64
+        path: C:\local\QuantLib-SWIG-1.32\CSharp\cpp\win-x64
+    - uses: actions/download-artifact@v3
+      with:
+        name: dll-osx-x86_64
+        path: C:\local\QuantLib-SWIG-1.32\CSharp\cpp\osx-x64
+    - uses: actions/download-artifact@v3
+      with:
+        name: dll-osx-arm64
+        path: C:\local\QuantLib-SWIG-1.32\CSharp\cpp\osx-arm64
+    - uses: actions/download-artifact@v3
+      with:
+        name: dll-linux-x64
+        path: C:\local\QuantLib-SWIG-1.32\CSharp\cpp\linux-x64
+    - name: Build nupkg
+      run: |
+        Remove-Item C:\local\QuantLib-SWIG-1.32\CSharp\csharp\NQuantLib.csproj
+        Copy-Item dotnet\QuantLib.csproj C:\local\QuantLib-SWIG-1.32\CSharp\csharp\
+        Copy-Item dotnet\README.md C:\local\QuantLib-SWIG-1.32\CSharp\csharp\
+        Copy-Item dotnet\LICENSE.txt C:\local\QuantLib-SWIG-1.32\CSharp\csharp\
         cd C:\local\QuantLib-SWIG-1.32\CSharp\csharp
         dotnet build -c Release
+        dotnet pack --no-build -c Release -p:PackageVersion=1.32 -o ..\nupkg
+    - name: Save nupkg as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: nupkg-all
+        path: C:\local\QuantLib-SWIG-1.32\CSharp\nupkg\*.nupkg
+
+  dotnet-win-check:
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        dotnet: ['6.0', '7.0']
+    needs: dotnet-nupkg
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup examples
+      run: |
+        Expand-Archive -Path QuantLib-SWIG-1.32.zip -DestinationPath C:\local
+        Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.32\CSharp\examples\BermudanSwaption\BermudanSwaption.csproj
+        Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.32\CSharp\examples\EquityOption\EquityOption.csproj
+        Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.32\CSharp\examples\FiniteDifferenceMethods\FiniteDifferenceMethods.csproj
+        Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.32\CSharp\examples\Times\Times.csproj
+    - uses: actions/download-artifact@v3
+      with:
+        name: nupkg-all
+        path: C:\local\QuantLib-SWIG-1.32\CSharp\nupkg
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ matrix.dotnet }}
     - name: Run C# examples
       run: |
         cd C:\local\QuantLib-SWIG-1.32\CSharp\examples\BermudanSwaption
-        dotnet build -c Release
-        dotnet run -c Release
+        dotnet build -c Release --framework net${{ matrix.dotnet }}
+        dotnet run -c Release --framework net${{ matrix.dotnet }}
         cd C:\local\QuantLib-SWIG-1.32\CSharp\examples\EquityOption
-        dotnet build -c Release
-        dotnet run -c Release
+        dotnet build -c Release --framework net${{ matrix.dotnet }}
+        dotnet run -c Release --framework net${{ matrix.dotnet }}
         cd C:\local\QuantLib-SWIG-1.32\CSharp\examples\FiniteDifferenceMethods
-        dotnet build -c Release
-        dotnet run -c Release
+        dotnet build -c Release --framework net${{ matrix.dotnet }}
+        dotnet run -c Release --framework net${{ matrix.dotnet }}
         cd C:\local\QuantLib-SWIG-1.32\CSharp\examples\Times
-        dotnet build -c Release
-        dotnet run -c Release
+        dotnet build -c Release --framework net${{ matrix.dotnet }}
+        dotnet run -c Release --framework net${{ matrix.dotnet }}
+
+  dotnet-other-check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['macos-12', 'ubuntu-22.04']
+        dotnet: ['6.0', '7.0']
+    runs-on: ${{ matrix.os }}
+    needs: dotnet-nupkg
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup examples
+      run: |
+        tar xfz QuantLib-SWIG-1.*.tar.gz
+        cp dotnet/Example.csproj QuantLib-SWIG-1.*/CSharp/examples/BermudanSwaption/BermudanSwaption.csproj
+        cp dotnet/Example.csproj QuantLib-SWIG-1.*/CSharp/examples/EquityOption/EquityOption.csproj
+        cp dotnet/Example.csproj QuantLib-SWIG-1.*/CSharp/examples/FiniteDifferenceMethods/FiniteDifferenceMethods.csproj
+        cp dotnet/Example.csproj QuantLib-SWIG-1.*/CSharp/examples/Times/Times.csproj
+    - uses: actions/download-artifact@v3
+      with:
+        name: nupkg-all
+        path: QuantLib-SWIG-1.32/CSharp/nupkg
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ matrix.dotnet }}
+    - name: Run C# examples
+      run: |
+        cd QuantLib-SWIG-1.*/CSharp/examples/BermudanSwaption
+        dotnet build -c Release --framework net${{ matrix.dotnet }}
+        dotnet run -c Release --framework net${{ matrix.dotnet }}
+        cd ../EquityOption
+        dotnet build -c Release --framework net${{ matrix.dotnet }}
+        dotnet run -c Release --framework net${{ matrix.dotnet }}
+        cd ../FiniteDifferenceMethods
+        dotnet build -c Release --framework net${{ matrix.dotnet }}
+        dotnet run -c Release --framework net${{ matrix.dotnet }}
+        cd ../Times
+        dotnet build -c Release --framework net${{ matrix.dotnet }}
+        dotnet run -c Release --framework net${{ matrix.dotnet }}
+
+  dotnet-test-publish:
+    runs-on: windows-2022
+    needs: [dotnet-win-check, dotnet-other-check]
+    environment: testnuget
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: nupkg-all
+        path: C:\local\nupkg
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.0.x'
+    - name: Publish the package to nugettest.org
+      run: |
+        dotnet nuget push C:\local\nupkg\*.nupkg --source https://apiint.nugettest.org/v3/index.json --api-key "$env:NUGET_AUTH_TOKEN"
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.TEST_NUGET_TOKEN }}
+
+  dotnet-publish:
+    runs-on: windows-2022
+    needs: [dotnet-test-publish]
+    environment: nuget
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: nupkg-all
+        path: C:\local\nupkg
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '7.0.x'
+    - name: Publish the package to nuget.org
+      run: |
+        dotnet nuget push C:\local\nupkg\*.nupkg --source https://api.nuget.org/v3/index.json --api-key "$env:NUGET_AUTH_TOKEN"
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
