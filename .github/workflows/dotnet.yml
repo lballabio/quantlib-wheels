@@ -102,7 +102,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.0.x'
+        dotnet-version: '8.0.x'
     - name: Extract QuantLib-SWIG
       run: |
         Expand-Archive -Path QuantLib-SWIG-1.32.zip -DestinationPath C:\local
@@ -142,7 +142,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        dotnet: ['6.0', '7.0']
+        dotnet: ['net6.0', 'net7.0', 'net8.0']
     needs: dotnet-nupkg
     steps:
     - uses: actions/checkout@v3
@@ -160,28 +160,28 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: ${{ matrix.dotnet }}
+        dotnet-version: '8.0.x'
     - name: Run C# examples
       run: |
         cd C:\local\QuantLib-SWIG-1.32\CSharp\examples\BermudanSwaption
-        dotnet build -c Release --framework net${{ matrix.dotnet }}
-        dotnet run -c Release --framework net${{ matrix.dotnet }}
+        dotnet build -c Release --framework ${{ matrix.dotnet }}
+        dotnet run -c Release --framework ${{ matrix.dotnet }}
         cd C:\local\QuantLib-SWIG-1.32\CSharp\examples\EquityOption
-        dotnet build -c Release --framework net${{ matrix.dotnet }}
-        dotnet run -c Release --framework net${{ matrix.dotnet }}
+        dotnet build -c Release --framework ${{ matrix.dotnet }}
+        dotnet run -c Release --framework ${{ matrix.dotnet }}
         cd C:\local\QuantLib-SWIG-1.32\CSharp\examples\FiniteDifferenceMethods
-        dotnet build -c Release --framework net${{ matrix.dotnet }}
-        dotnet run -c Release --framework net${{ matrix.dotnet }}
+        dotnet build -c Release --framework ${{ matrix.dotnet }}
+        dotnet run -c Release --framework ${{ matrix.dotnet }}
         cd C:\local\QuantLib-SWIG-1.32\CSharp\examples\Times
-        dotnet build -c Release --framework net${{ matrix.dotnet }}
-        dotnet run -c Release --framework net${{ matrix.dotnet }}
+        dotnet build -c Release --framework ${{ matrix.dotnet }}
+        dotnet run -c Release --framework ${{ matrix.dotnet }}
 
   dotnet-other-check:
     strategy:
       fail-fast: false
       matrix:
         os: ['macos-12', 'ubuntu-22.04']
-        dotnet: ['6.0', '7.0']
+        dotnet: ['net6.0', 'net7.0', 'net8.0']
     runs-on: ${{ matrix.os }}
     needs: dotnet-nupkg
     steps:
@@ -200,21 +200,21 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: ${{ matrix.dotnet }}
+        dotnet-version: '8.0.x'
     - name: Run C# examples
       run: |
         cd QuantLib-SWIG-1.*/CSharp/examples/BermudanSwaption
-        dotnet build -c Release --framework net${{ matrix.dotnet }}
-        dotnet run -c Release --framework net${{ matrix.dotnet }}
+        dotnet build -c Release --framework ${{ matrix.dotnet }}
+        dotnet run -c Release --framework ${{ matrix.dotnet }}
         cd ../EquityOption
-        dotnet build -c Release --framework net${{ matrix.dotnet }}
-        dotnet run -c Release --framework net${{ matrix.dotnet }}
+        dotnet build -c Release --framework ${{ matrix.dotnet }}
+        dotnet run -c Release --framework ${{ matrix.dotnet }}
         cd ../FiniteDifferenceMethods
-        dotnet build -c Release --framework net${{ matrix.dotnet }}
-        dotnet run -c Release --framework net${{ matrix.dotnet }}
+        dotnet build -c Release --framework ${{ matrix.dotnet }}
+        dotnet run -c Release --framework ${{ matrix.dotnet }}
         cd ../Times
-        dotnet build -c Release --framework net${{ matrix.dotnet }}
-        dotnet run -c Release --framework net${{ matrix.dotnet }}
+        dotnet build -c Release --framework ${{ matrix.dotnet }}
+        dotnet run -c Release --framework ${{ matrix.dotnet }}
 
   dotnet-test-publish:
     runs-on: windows-2022
@@ -228,7 +228,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.0.x'
+        dotnet-version: '8.0.x'
     - name: Publish the package to nugettest.org
       run: |
         dotnet nuget push C:\local\nupkg\*.nupkg --source https://apiint.nugettest.org/v3/index.json --api-key "$env:NUGET_AUTH_TOKEN"
@@ -247,7 +247,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '7.0.x'
+        dotnet-version: '8.0.x'
     - name: Publish the package to nuget.org
       run: |
         dotnet nuget push C:\local\nupkg\*.nupkg --source https://api.nuget.org/v3/index.json --api-key "$env:NUGET_AUTH_TOKEN"
