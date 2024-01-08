@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="QuantLib" Version="1.32.0" />
+    <PackageReference Include="QuantLib" Version="1.33.0" />
   </ItemGroup>
 
 </Project>
