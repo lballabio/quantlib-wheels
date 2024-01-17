@@ -80,7 +80,7 @@ jobs:
         tar xfz QuantLib-1.*.tar.gz
         cd QuantLib-1.*/
         ./configure --disable-shared --enable-thread-safe-observer-pattern --enable-sessions --enable-unity-build --disable-test-suite --enable-skip-examples
-        make -j2 CXXFLAGS="-g0 -O3 -fPIC"
+        make -j4 CXXFLAGS="-g0 -O3 -fPIC"
         sudo make install
     - name: Build QuantLib wrappers
       run: |
