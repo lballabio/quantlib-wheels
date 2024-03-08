@@ -4,9 +4,9 @@ jobs:
   dotnet-win-wrap:
     runs-on: windows-2022
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v2
     - name: Setup Boost
       run: |
         $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.84.0/binaries/boost_1_84_0-msvc-14.3-64.exe"
@@ -30,7 +30,7 @@ jobs:
         cd C:\local\QuantLib-SWIG-1.33\CSharp\cpp
         msbuild QuantLibWrapper.vcxproj -p:Configuration="Release" -p:Platform=x64
     - name: Save DLL as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: dll-win-x64
         path: C:\local\QuantLib-SWIG-1.33\CSharp\cpp\NQuantLibc.dll
@@ -42,7 +42,7 @@ jobs:
       matrix:
         arch: [x86_64, arm64]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup Boost
       run: |
         brew install boost
@@ -60,7 +60,7 @@ jobs:
         clang++ -c -fpic -std=c++14 -g0 -O3 -arch ${{ matrix.arch }} cpp/quantlib_wrap.cpp -o cpp/quantlib_wrap.o `quantlib-config --cflags`
         clang++ -shared -arch ${{ matrix.arch }} cpp/quantlib_wrap.o -o cpp/libNQuantLibc.dylib `quantlib-config --libs`
     - name: Save DLL as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: dll-osx-${{ matrix.arch }}
         path: ./QuantLib-SWIG-1.33/CSharp/cpp/libNQuantLibc.dylib
@@ -68,7 +68,7 @@ jobs:
   dotnet-linux-wrap:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup Boost
       run: |
         curl -O -L https://boostorg.jfrog.io/artifactory/main/release/1.84.0/source/boost_1_84_0.tar.gz
@@ -89,7 +89,7 @@ jobs:
         g++ -c -g0 -O3 -fPIC cpp/quantlib_wrap.cpp -o cpp/quantlib_wrap.o `quantlib-config --cflags`
         g++ -shared cpp/quantlib_wrap.o -o cpp/libNQuantLibc.so `quantlib-config --libs`
     - name: Save DLL as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: dll-linux-x64
         path: ./QuantLib-SWIG-1.33/CSharp/cpp/libNQuantLibc.so
@@ -98,27 +98,27 @@ jobs:
     runs-on: windows-2022
     needs: [dotnet-win-wrap, dotnet-osx-wrap, dotnet-linux-wrap]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
     - name: Extract QuantLib-SWIG
       run: |
         Expand-Archive -Path QuantLib-SWIG-1.33.zip -DestinationPath C:\local
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: dll-win-x64
         path: C:\local\QuantLib-SWIG-1.33\CSharp\cpp\win-x64
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: dll-osx-x86_64
         path: C:\local\QuantLib-SWIG-1.33\CSharp\cpp\osx-x64
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: dll-osx-arm64
         path: C:\local\QuantLib-SWIG-1.33\CSharp\cpp\osx-arm64
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: dll-linux-x64
         path: C:\local\QuantLib-SWIG-1.33\CSharp\cpp\linux-x64
@@ -132,7 +132,7 @@ jobs:
         dotnet build -c Release
         dotnet pack --no-build -c Release -p:PackageVersion=1.33 -o ..\nupkg
     - name: Save nupkg as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: nupkg-all
         path: C:\local\QuantLib-SWIG-1.33\CSharp\nupkg\*.nupkg
@@ -145,7 +145,7 @@ jobs:
         dotnet: ['net6.0', 'net7.0', 'net8.0']
     needs: dotnet-nupkg
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup examples
       run: |
         Expand-Archive -Path QuantLib-SWIG-1.33.zip -DestinationPath C:\local
@@ -153,12 +153,12 @@ jobs:
         Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.33\CSharp\examples\EquityOption\EquityOption.csproj
         Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.33\CSharp\examples\FiniteDifferenceMethods\FiniteDifferenceMethods.csproj
         Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.33\CSharp\examples\Times\Times.csproj
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: nupkg-all
         path: C:\local\QuantLib-SWIG-1.33\CSharp\nupkg
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
     - name: Run C# examples
@@ -185,7 +185,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: dotnet-nupkg
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup examples
       run: |
         tar xfz QuantLib-SWIG-1.*.tar.gz
@@ -193,12 +193,12 @@ jobs:
         cp dotnet/Example.csproj QuantLib-SWIG-1.*/CSharp/examples/EquityOption/EquityOption.csproj
         cp dotnet/Example.csproj QuantLib-SWIG-1.*/CSharp/examples/FiniteDifferenceMethods/FiniteDifferenceMethods.csproj
         cp dotnet/Example.csproj QuantLib-SWIG-1.*/CSharp/examples/Times/Times.csproj
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: nupkg-all
         path: QuantLib-SWIG-1.33/CSharp/nupkg
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
     - name: Run C# examples
@@ -221,12 +221,12 @@ jobs:
     needs: [dotnet-win-check, dotnet-other-check]
     environment: testnuget
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: nupkg-all
         path: C:\local\nupkg
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
     - name: Publish the package to nugettest.org
@@ -240,12 +240,12 @@ jobs:
     needs: [dotnet-test-publish]
     environment: nuget
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: nupkg-all
         path: C:\local\nupkg
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
     - name: Publish the package to nuget.org

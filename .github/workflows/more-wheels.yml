@@ -9,14 +9,14 @@ jobs:
         arch: [aarch64]
         image: [manylinux, musllinux]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Unpack QuantLib and QuantLib-SWIG
       run: |
         tar xfz QuantLib-1.*.tar.gz
         tar xfz QuantLib-SWIG-1.*.tar.gz
     - name: Set up QEMU
       if: matrix.arch == 'aarch64'
-      uses: docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@v3
       with:
         platforms: arm64
     - name: Build QuantLib wheels
@@ -33,7 +33,7 @@ jobs:
       with:
         package-dir: ./QuantLib-SWIG-1.33/Python
     - name: Save wheels as artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: wheels-linux-${{ matrix.image }}-${{ matrix.arch }}
         path: ./wheelhouse/*.whl
@@ -44,7 +44,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
     - name: Collect wheels
       run: |
         mkdir ./wheelhouse
@@ -63,7 +63,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
     - name: Collect wheels
       run: |
         mkdir ./wheelhouse

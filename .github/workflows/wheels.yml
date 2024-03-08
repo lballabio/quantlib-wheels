@@ -8,7 +8,7 @@ jobs:
       matrix:
         arch: [x86_64, arm64]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup
       run: |
         brew install boost
@@ -33,7 +33,7 @@ jobs:
       with:
         package-dir: ./QuantLib-SWIG-1.33/Python
     - name: Save wheels as artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: wheels-macos-${{ matrix.arch }}
         path: ./wheelhouse/*.whl
@@ -48,9 +48,9 @@ jobs:
           - arch: x86
             platform: Win32
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v1.1
+      uses: microsoft/setup-msbuild@v2
     - name: Setup Boost
       run: |
         $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.84.0/binaries/boost_1_84_0-msvc-14.2-64.exe"
@@ -80,7 +80,7 @@ jobs:
       with:
         package-dir: ./QuantLib-SWIG-1.33/Python
     - name: Save wheels as artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: wheels-windows-${{ matrix.arch }}
         path: ./wheelhouse/*.whl
@@ -92,14 +92,14 @@ jobs:
         arch: [x86_64, i686]
         image: [manylinux, musllinux]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Unpack QuantLib and QuantLib-SWIG
       run: |
         tar xfz QuantLib-1.*.tar.gz
         tar xfz QuantLib-SWIG-1.*.tar.gz
     - name: Set up QEMU
       if: matrix.arch == 'aarch64'
-      uses: docker/setup-qemu-action@v2
+      uses: docker/setup-qemu-action@v3
       with:
         platforms: arm64
     - name: Build QuantLib wheels
@@ -116,7 +116,7 @@ jobs:
       with:
         package-dir: ./QuantLib-SWIG-1.33/Python
     - name: Save wheels as artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: wheels-linux-${{ matrix.image }}-${{ matrix.arch }}
         path: ./wheelhouse/*.whl
@@ -127,7 +127,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
     - name: Collect wheels
       run: |
         mkdir ./wheelhouse
@@ -146,7 +146,7 @@ jobs:
     permissions:
       id-token: write
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
     - name: Collect wheels
       run: |
         mkdir ./wheelhouse
