@@ -36,7 +36,7 @@ jobs:
         path: C:\local\QuantLib-SWIG-1.33\CSharp\cpp\NQuantLibc.dll
 
   dotnet-osx-wrap:
-    runs-on: macos-11
+    runs-on: macos-12
     strategy:
       fail-fast: false
       matrix:
