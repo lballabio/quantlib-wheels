@@ -10,7 +10,7 @@ jobs:
         HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
       run: |
         brew update
-        brew install automake boost doxygen graphviz
+        brew install --overwrite automake boost doxygen graphviz
     - name: Doxygen version
       run: |
         doxygen --version
