@@ -6,8 +6,6 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup
-      env:
-        HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK: 1
       run: |
         brew update
         brew install --overwrite automake boost doxygen graphviz
