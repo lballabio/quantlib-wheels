@@ -7,8 +7,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Setup
       run: |
-        brew update
-        brew install --overwrite automake boost doxygen graphviz
+        brew install automake boost doxygen graphviz
     - name: Doxygen version
       run: |
         doxygen --version
