@@ -110,7 +110,7 @@ jobs:
         CIBW_ARCHS_LINUX: ${{ matrix.arch }}
         CIBW_BUILD_VERBOSITY: 2
         CIBW_BEFORE_ALL_LINUX: ./before_all_linux.sh
-        CIBW_ENVIRONMENT_LINUX: CXXFLAGS=${{ matrix.arch == 'x86_64' && '"-O3 -g0"' || matrix.arch == 'i686' && '"-O1 -g0"' || '"-O0 -g0"' }} CXXQLFLAGS=${{ matrix.arch == 'aarch64' && '"-O2 -g0"' || '"-O3 -g0"' }}
+        CIBW_ENVIRONMENT_LINUX: CXXFLAGS=${{ matrix.arch == 'x86_64' && '"-O3 -g0"' || '"-O0 -g0"' }} CXXQLFLAGS=${{ matrix.arch == 'aarch64' && '"-O2 -g0"' || '"-O3 -g0"' }}
         CIBW_ENVIRONMENT_PASS_LINUX: CXXFLAGS CXXQLFLAGS
         CIBW_TEST_COMMAND: python {package}/test/QuantLibTestSuite.py
       with:
