@@ -9,7 +9,7 @@ jobs:
       uses: microsoft/setup-msbuild@v2
     - name: Setup Boost
       run: |
-        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.84.0/binaries/boost_1_84_0-msvc-14.3-64.exe"
+        $Url = "https://boostorg.jfrog.io/artifactory/main/release/1.85.0/binaries/boost_1_85_0-msvc-14.3-64.exe"
         (New-Object System.Net.WebClient).DownloadFile($Url, "$RUNNER_TEMP\boost.exe")
         Start-Process -Wait -FilePath "$RUNNER_TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost"
     - name: Build QuantLib
@@ -71,7 +71,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Setup Boost
       run: |
-        curl -O -L https://boostorg.jfrog.io/artifactory/main/release/1.84.0/source/boost_1_84_0.tar.gz
+        curl -O -L https://boostorg.jfrog.io/artifactory/main/release/1.85.0/source/boost_1_85_0.tar.gz
         tar xfz boost_*.tar.gz
         cd boost_*/
         sudo mv boost /usr/local/include/
