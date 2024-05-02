@@ -20,7 +20,7 @@ jobs:
       with:
         platforms: arm64
     - name: Build QuantLib wheels
-      uses: pypa/cibuildwheel@v2.16.5
+      uses: pypa/cibuildwheel@v2.17.0
       env:
         CIBW_BUILD: "*-${{ matrix.image }}*"
         CIBW_SKIP: cp36-* cp37-* pp37-* pp38-*
