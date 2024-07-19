@@ -14,26 +14,26 @@ jobs:
         Start-Process -Wait -FilePath "$RUNNER_TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost"
     - name: Build QuantLib
       run: |
-        Expand-Archive -Path QuantLib-1.34.zip -DestinationPath C:\local
-        Copy-Item Build.props C:\local\QuantLib-1.34\
-        Copy-Item Directory.Build.props C:\local\QuantLib-1.34\
-        Copy-Item dotnet\userconfig.hpp C:\local\QuantLib-1.34\ql\userconfig.hpp
-        cd C:\local\QuantLib-1.34\
+        Expand-Archive -Path QuantLib-1.35.zip -DestinationPath C:\local
+        Copy-Item Build.props C:\local\QuantLib-1.35\
+        Copy-Item Directory.Build.props C:\local\QuantLib-1.35\
+        Copy-Item dotnet\userconfig.hpp C:\local\QuantLib-1.35\ql\userconfig.hpp
+        cd C:\local\QuantLib-1.35\
         msbuild QuantLib.vcxproj -p:Configuration="Release" -p:Platform=x64
         dir lib
     - name: Build QuantLib wrappers
       env:
-        QL_DIR: C:\local\QuantLib-1.34
+        QL_DIR: C:\local\QuantLib-1.35
       run: |
-        Expand-Archive -Path QuantLib-SWIG-1.34.zip -DestinationPath C:\local
-        Copy-Item Build.props C:\local\QuantLib-SWIG-1.34\CSharp\cpp\
-        cd C:\local\QuantLib-SWIG-1.34\CSharp\cpp
+        Expand-Archive -Path QuantLib-SWIG-1.35.zip -DestinationPath C:\local
+        Copy-Item Build.props C:\local\QuantLib-SWIG-1.35\CSharp\cpp\
+        cd C:\local\QuantLib-SWIG-1.35\CSharp\cpp
         msbuild QuantLibWrapper.vcxproj -p:Configuration="Release" -p:Platform=x64
     - name: Save DLL as artifact
       uses: actions/upload-artifact@v4
       with:
         name: dll-win-x64
-        path: C:\local\QuantLib-SWIG-1.34\CSharp\cpp\NQuantLibc.dll
+        path: C:\local\QuantLib-SWIG-1.35\CSharp\cpp\NQuantLibc.dll
 
   dotnet-osx-wrap:
     runs-on: macos-12
@@ -63,7 +63,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: dll-osx-${{ matrix.arch }}
-        path: ./QuantLib-SWIG-1.34/CSharp/cpp/libNQuantLibc.dylib
+        path: ./QuantLib-SWIG-1.35/CSharp/cpp/libNQuantLibc.dylib
 
   dotnet-linux-wrap:
     runs-on: ubuntu-20.04
@@ -92,7 +92,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: dll-linux-x64
-        path: ./QuantLib-SWIG-1.34/CSharp/cpp/libNQuantLibc.so
+        path: ./QuantLib-SWIG-1.35/CSharp/cpp/libNQuantLibc.so
 
   dotnet-nupkg:
     runs-on: windows-2022
@@ -105,37 +105,37 @@ jobs:
         dotnet-version: '8.0.x'
     - name: Extract QuantLib-SWIG
       run: |
-        Expand-Archive -Path QuantLib-SWIG-1.34.zip -DestinationPath C:\local
+        Expand-Archive -Path QuantLib-SWIG-1.35.zip -DestinationPath C:\local
     - uses: actions/download-artifact@v4
       with:
         name: dll-win-x64
-        path: C:\local\QuantLib-SWIG-1.34\CSharp\cpp\win-x64
+        path: C:\local\QuantLib-SWIG-1.35\CSharp\cpp\win-x64
     - uses: actions/download-artifact@v4
       with:
         name: dll-osx-x86_64
-        path: C:\local\QuantLib-SWIG-1.34\CSharp\cpp\osx-x64
+        path: C:\local\QuantLib-SWIG-1.35\CSharp\cpp\osx-x64
     - uses: actions/download-artifact@v4
       with:
         name: dll-osx-arm64
-        path: C:\local\QuantLib-SWIG-1.34\CSharp\cpp\osx-arm64
+        path: C:\local\QuantLib-SWIG-1.35\CSharp\cpp\osx-arm64
     - uses: actions/download-artifact@v4
       with:
         name: dll-linux-x64
-        path: C:\local\QuantLib-SWIG-1.34\CSharp\cpp\linux-x64
+        path: C:\local\QuantLib-SWIG-1.35\CSharp\cpp\linux-x64
     - name: Build nupkg
       run: |
-        Remove-Item C:\local\QuantLib-SWIG-1.34\CSharp\csharp\NQuantLib.csproj
-        Copy-Item dotnet\QuantLib.csproj C:\local\QuantLib-SWIG-1.34\CSharp\csharp\
-        Copy-Item dotnet\README.md C:\local\QuantLib-SWIG-1.34\CSharp\csharp\
-        Copy-Item dotnet\LICENSE.txt C:\local\QuantLib-SWIG-1.34\CSharp\csharp\
-        cd C:\local\QuantLib-SWIG-1.34\CSharp\csharp
+        Remove-Item C:\local\QuantLib-SWIG-1.35\CSharp\csharp\NQuantLib.csproj
+        Copy-Item dotnet\QuantLib.csproj C:\local\QuantLib-SWIG-1.35\CSharp\csharp\
+        Copy-Item dotnet\README.md C:\local\QuantLib-SWIG-1.35\CSharp\csharp\
+        Copy-Item dotnet\LICENSE.txt C:\local\QuantLib-SWIG-1.35\CSharp\csharp\
+        cd C:\local\QuantLib-SWIG-1.35\CSharp\csharp
         dotnet build -c Release
-        dotnet pack --no-build -c Release -p:PackageVersion=1.34 -o ..\nupkg
+        dotnet pack --no-build -c Release -p:PackageVersion=1.35 -o ..\nupkg
     - name: Save nupkg as artifact
       uses: actions/upload-artifact@v4
       with:
         name: nupkg-all
-        path: C:\local\QuantLib-SWIG-1.34\CSharp\nupkg\*.nupkg
+        path: C:\local\QuantLib-SWIG-1.35\CSharp\nupkg\*.nupkg
 
   dotnet-win-check:
     runs-on: windows-2022
@@ -148,31 +148,31 @@ jobs:
     - uses: actions/checkout@v4
     - name: Setup examples
       run: |
-        Expand-Archive -Path QuantLib-SWIG-1.34.zip -DestinationPath C:\local
-        Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.34\CSharp\examples\BermudanSwaption\BermudanSwaption.csproj
-        Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.34\CSharp\examples\EquityOption\EquityOption.csproj
-        Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.34\CSharp\examples\FiniteDifferenceMethods\FiniteDifferenceMethods.csproj
-        Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.34\CSharp\examples\Times\Times.csproj
+        Expand-Archive -Path QuantLib-SWIG-1.35.zip -DestinationPath C:\local
+        Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.35\CSharp\examples\BermudanSwaption\BermudanSwaption.csproj
+        Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.35\CSharp\examples\EquityOption\EquityOption.csproj
+        Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.35\CSharp\examples\FiniteDifferenceMethods\FiniteDifferenceMethods.csproj
+        Copy-Item dotnet\Example.csproj C:\local\QuantLib-SWIG-1.35\CSharp\examples\Times\Times.csproj
     - uses: actions/download-artifact@v4
       with:
         name: nupkg-all
-        path: C:\local\QuantLib-SWIG-1.34\CSharp\nupkg
+        path: C:\local\QuantLib-SWIG-1.35\CSharp\nupkg
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
     - name: Run C# examples
       run: |
-        cd C:\local\QuantLib-SWIG-1.34\CSharp\examples\BermudanSwaption
+        cd C:\local\QuantLib-SWIG-1.35\CSharp\examples\BermudanSwaption
         dotnet build -c Release --framework ${{ matrix.dotnet }}
         dotnet run -c Release --framework ${{ matrix.dotnet }}
-        cd C:\local\QuantLib-SWIG-1.34\CSharp\examples\EquityOption
+        cd C:\local\QuantLib-SWIG-1.35\CSharp\examples\EquityOption
         dotnet build -c Release --framework ${{ matrix.dotnet }}
         dotnet run -c Release --framework ${{ matrix.dotnet }}
-        cd C:\local\QuantLib-SWIG-1.34\CSharp\examples\FiniteDifferenceMethods
+        cd C:\local\QuantLib-SWIG-1.35\CSharp\examples\FiniteDifferenceMethods
         dotnet build -c Release --framework ${{ matrix.dotnet }}
         dotnet run -c Release --framework ${{ matrix.dotnet }}
-        cd C:\local\QuantLib-SWIG-1.34\CSharp\examples\Times
+        cd C:\local\QuantLib-SWIG-1.35\CSharp\examples\Times
         dotnet build -c Release --framework ${{ matrix.dotnet }}
         dotnet run -c Release --framework ${{ matrix.dotnet }}
 
@@ -196,7 +196,7 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: nupkg-all
-        path: QuantLib-SWIG-1.34/CSharp/nupkg
+        path: QuantLib-SWIG-1.35/CSharp/nupkg
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
