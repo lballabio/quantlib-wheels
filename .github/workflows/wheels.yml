@@ -28,7 +28,8 @@ jobs:
         CIBW_SKIP: cp36-* cp37-* pp37-* pp38-*
         CXXFLAGS: -std=c++17 -g0 -O3
         CIBW_BUILD_VERBOSITY: 2
-        CIBW_TEST_COMMAND: python {package}/test/QuantLibTestSuite.py
+        CIBW_TEST_REQUIRES: pytest
+        CIBW_TEST_COMMAND: pytest {package}/test
       with:
         package-dir: ./QuantLib-SWIG-1.35/Python
     - name: Save wheels as artifacts
@@ -75,7 +76,8 @@ jobs:
         CIBW_SKIP: cp36-* cp37-* pp37-* pp38-*
         CIBW_ARCHS_WINDOWS: ${{ matrix.arch }}
         CIBW_BUILD_VERBOSITY: 2
-        CIBW_TEST_COMMAND: python {package}/test/QuantLibTestSuite.py
+        CIBW_TEST_REQUIRES: pytest
+        CIBW_TEST_COMMAND: pytest {package}/test
       with:
         package-dir: ./QuantLib-SWIG-1.35/Python
     - name: Save wheels as artifacts
@@ -111,7 +113,8 @@ jobs:
         CIBW_BEFORE_ALL_LINUX: ./before_all_linux.sh
         CIBW_ENVIRONMENT_LINUX: CXXFLAGS=${{ matrix.arch == 'x86_64' && '"-O3 -g0"' || '"-O0 -g0"' }} CXXQLFLAGS=${{ matrix.arch == 'aarch64' && '"-O2 -g0"' || '"-O3 -g0"' }}
         CIBW_ENVIRONMENT_PASS_LINUX: CXXFLAGS CXXQLFLAGS
-        CIBW_TEST_COMMAND: python {package}/test/QuantLibTestSuite.py
+        CIBW_TEST_REQUIRES: pytest
+        CIBW_TEST_COMMAND: pytest {package}/test
       with:
         package-dir: ./QuantLib-SWIG-1.35/Python
     - name: Save wheels as artifacts
