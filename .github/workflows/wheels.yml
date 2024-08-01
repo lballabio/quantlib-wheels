@@ -17,7 +17,7 @@ jobs:
         tar xfz QuantLib-1.*.tar.gz
         cd QuantLib-1.*/
         ./configure --disable-shared --with-boost-include=`brew --prefix`/include --enable-unity-build --disable-test-suite --enable-skip-examples
-        make -j3 CXXFLAGS="-std=c++14 -g0 -O3 -fno-common -dynamic -DNDEBUG -fwrapv" LDFLAGS="-fno-common -dynamic -DNDEBUG -fwrapv"
+        make -j3 CXXFLAGS="-std=c++17 -g0 -O3 -fno-common -dynamic -DNDEBUG -fwrapv" LDFLAGS="-fno-common -dynamic -DNDEBUG -fwrapv"
         sudo make install
     - name: Unpack QuantLib-SWIG
       run: |
@@ -26,7 +26,7 @@ jobs:
       uses: pypa/cibuildwheel@v2.17.0
       env:
         CIBW_SKIP: cp36-* cp37-* pp37-* pp38-*
-        CXXFLAGS: -std=c++14 -g0 -O3
+        CXXFLAGS: -std=c++17 -g0 -O3
         CIBW_BUILD_VERBOSITY: 2
         CIBW_TEST_COMMAND: python {package}/test/QuantLibTestSuite.py
       with:
