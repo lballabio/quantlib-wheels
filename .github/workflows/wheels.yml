@@ -25,7 +25,7 @@ jobs:
     - name: Build QuantLib wheels
       uses: pypa/cibuildwheel@v2.21.2
       env:
-        CIBW_SKIP: cp36-* cp37-* pp37-* pp38-* pp39-*
+        CIBW_SKIP: cp36-* cp37-* pp37-* pp38-* pp39-* pp310-*
         CXXFLAGS: -std=c++17 -g0 -O3
         CIBW_BUILD_VERBOSITY: 2
         CIBW_TEST_REQUIRES: pytest
