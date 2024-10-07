@@ -51,13 +51,13 @@ jobs:
         tar xfz QuantLib-1.*.tar.gz
         cd QuantLib-1.*/
         ./configure --disable-shared --enable-thread-safe-observer-pattern --enable-sessions --enable-unity-build --disable-test-suite --enable-skip-examples
-        make -j3 CXXFLAGS="-std=c++14 -g0 -O3 -arch ${{ matrix.arch }}" LDFLAGS="-arch ${{ matrix.arch }}"
+        make -j3 CXXFLAGS="-std=c++17 -g0 -O3 -arch ${{ matrix.arch }}" LDFLAGS="-arch ${{ matrix.arch }}"
         make install
     - name: Build QuantLib wrappers
       run: |
         tar xfz QuantLib-SWIG-1.*.tar.gz
         cd QuantLib-SWIG-1.*/CSharp
-        clang++ -c -fpic -std=c++14 -g0 -O3 -arch ${{ matrix.arch }} cpp/quantlib_wrap.cpp -o cpp/quantlib_wrap.o `quantlib-config --cflags`
+        clang++ -c -fpic -std=c++17 -g0 -O3 -arch ${{ matrix.arch }} cpp/quantlib_wrap.cpp -o cpp/quantlib_wrap.o `quantlib-config --cflags`
         clang++ -shared -arch ${{ matrix.arch }} cpp/quantlib_wrap.o -o cpp/libNQuantLibc.dylib `quantlib-config --libs`
     - name: Save DLL as artifact
       uses: actions/upload-artifact@v4
@@ -80,7 +80,7 @@ jobs:
         tar xfz QuantLib-1.*.tar.gz
         cd QuantLib-1.*/
         ./configure --disable-shared --enable-thread-safe-observer-pattern --enable-sessions --enable-unity-build --disable-test-suite --enable-skip-examples
-        make -j4 CXXFLAGS="-g0 -O3 -fPIC"
+        make -j4 CXXFLAGS="-g0 -O3 -std=c++17 -fPIC"
         sudo make install
     - name: Build QuantLib wrappers
       run: |
