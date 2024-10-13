@@ -31,7 +31,7 @@ jobs:
         CIBW_TEST_REQUIRES: pytest
         CIBW_TEST_COMMAND: pytest {package}/test
       with:
-        package-dir: ./QuantLib-SWIG-1.35/Python
+        package-dir: ./QuantLib-SWIG-1.36/Python
     - name: Save wheels as artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -58,19 +58,19 @@ jobs:
         Start-Process -Wait -FilePath "$RUNNER_TEMP\boost.exe" "/SILENT","/SP-","/SUPPRESSMSGBOXES","/DIR=C:\local\boost"
     - name: Build QuantLib
       run: |
-        Expand-Archive -Path QuantLib-1.35.zip -DestinationPath C:\local
-        Copy-Item Build.props C:\local\QuantLib-1.35\
-        Copy-Item Directory.Build.props C:\local\QuantLib-1.35\
-        cd C:\local\QuantLib-1.35\
+        Expand-Archive -Path QuantLib-1.36.zip -DestinationPath C:\local
+        Copy-Item Build.props C:\local\QuantLib-1.36\
+        Copy-Item Directory.Build.props C:\local\QuantLib-1.36\
+        cd C:\local\QuantLib-1.36\
         msbuild QuantLib.vcxproj -p:Configuration="Release (static runtime)" -p:Platform=${{ matrix.platform }}
         dir lib
     - name: Unpack QuantLib-SWIG
       run: |
-        Expand-Archive -Path QuantLib-SWIG-1.35.zip -DestinationPath .
+        Expand-Archive -Path QuantLib-SWIG-1.36.zip -DestinationPath .
     - name: Build QuantLib wheels
       uses: pypa/cibuildwheel@v2.21.3
       env:
-        QL_DIR: C:\local\QuantLib-1.35
+        QL_DIR: C:\local\QuantLib-1.36
         INCLUDE: C:\local\boost
         QL_STATIC_RUNTIME: 1
         CIBW_SKIP: cp36-* cp37-* pp37-* pp38-* pp39-*
@@ -79,7 +79,7 @@ jobs:
         CIBW_TEST_REQUIRES: pytest
         CIBW_TEST_COMMAND: pytest {package}/test
       with:
-        package-dir: ./QuantLib-SWIG-1.35/Python
+        package-dir: ./QuantLib-SWIG-1.36/Python
     - name: Save wheels as artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -116,7 +116,7 @@ jobs:
         CIBW_TEST_REQUIRES: pytest
         CIBW_TEST_COMMAND: pytest {package}/test
       with:
-        package-dir: ./QuantLib-SWIG-1.35/Python
+        package-dir: ./QuantLib-SWIG-1.36/Python
     - name: Save wheels as artifacts
       uses: actions/upload-artifact@v4
       with:
