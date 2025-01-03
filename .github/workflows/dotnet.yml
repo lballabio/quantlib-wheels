@@ -143,7 +143,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        dotnet: ['net6.0', 'net7.0', 'net8.0', 'net9.0']
+        dotnet: ['net6.0', 'net8.0', 'net9.0']
     needs: dotnet-nupkg
     steps:
     - uses: actions/checkout@v4
@@ -182,7 +182,7 @@ jobs:
       fail-fast: false
       matrix:
         os: ['macos-13', 'ubuntu-22.04']
-        dotnet: ['net6.0', 'net7.0', 'net8.0', 'net9.0']
+        dotnet: ['net7.0', 'net8.0', 'net9.0']
     runs-on: ${{ matrix.os }}
     needs: dotnet-nupkg
     steps:
