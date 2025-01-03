@@ -37,7 +37,7 @@ jobs:
         path: C:\local\QuantLib-SWIG-1.36\CSharp\cpp\NQuantLibc.dll
 
   dotnet-osx-wrap:
-    runs-on: macos-12
+    runs-on: macos-13
     strategy:
       fail-fast: false
       matrix:
@@ -181,7 +181,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ['macos-12', 'ubuntu-22.04']
+        os: ['macos-13', 'ubuntu-22.04']
         dotnet: ['net6.0', 'net7.0', 'net8.0', 'net9.0']
     runs-on: ${{ matrix.os }}
     needs: dotnet-nupkg
