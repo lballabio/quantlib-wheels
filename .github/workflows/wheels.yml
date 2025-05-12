@@ -6,6 +6,9 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-13, macos-14]
+        include:
+          - os: macos-13
+            moreflags: -mmacosx-version-min=10.13
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -17,7 +20,7 @@ jobs:
         tar xfz QuantLib-1.*.tar.gz
         cd QuantLib-1.*/
         ./configure --disable-shared --with-boost-include=`brew --prefix`/include --enable-unity-build --disable-test-suite --enable-skip-examples
-        make -j3 CXXFLAGS="-std=c++17 -g0 -O3 -fno-common -dynamic -DNDEBUG -fwrapv" LDFLAGS="-fno-common -dynamic -DNDEBUG -fwrapv"
+        make -j3 CXXFLAGS="-std=c++17 -g0 -O3 ${{ matrix.moreflags }} -fno-common -dynamic -DNDEBUG -fwrapv" LDFLAGS="-fno-common -dynamic -DNDEBUG -fwrapv"
         sudo make install
     - name: Unpack QuantLib-SWIG
       run: |
@@ -26,7 +29,7 @@ jobs:
       uses: pypa/cibuildwheel@v2.23.2
       env:
         CIBW_SKIP: cp36-* cp37-* pp37-* pp38-* pp39-* pp310-*
-        CXXFLAGS: -std=c++17 -g0 -O3
+        CXXFLAGS: -std=c++17 -g0 -O3 ${{ matrix.moreflags }}
         CIBW_BUILD_VERBOSITY: 2
         CIBW_TEST_REQUIRES: pytest
         CIBW_TEST_COMMAND: pytest {package}/test
