@@ -20,7 +20,7 @@ jobs:
         Copy-Item Directory.Build.props C:\local\QuantLib-1.38\
         Copy-Item dotnet\userconfig.hpp C:\local\QuantLib-1.38\ql\userconfig.hpp
         cd C:\local\QuantLib-1.38\
-        msbuild QuantLib.vcxproj -p:Configuration="Release" -p:Platform=x64
+        msbuild QuantLib.vcxproj -p:Configuration="Release" -p:Platform=x64 -p:PlatformToolset=v142
         dir lib
     - name: Build QuantLib wrappers
       env:
@@ -29,7 +29,7 @@ jobs:
         Expand-Archive -Path QuantLib-SWIG-1.38.zip -DestinationPath C:\local
         Copy-Item Build.props C:\local\QuantLib-SWIG-1.38\CSharp\cpp\
         cd C:\local\QuantLib-SWIG-1.38\CSharp\cpp
-        msbuild QuantLibWrapper.vcxproj -p:Configuration="Release" -p:Platform=x64
+        msbuild QuantLibWrapper.vcxproj -p:Configuration="Release" -p:Platform=x64 -p:PlatformToolset=v142
     - name: Save DLL as artifact
       uses: actions/upload-artifact@v4
       with:
