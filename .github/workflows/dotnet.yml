@@ -217,11 +217,21 @@ jobs:
         dotnet build -c Release --framework ${{ matrix.dotnet }}
         dotnet run -c Release --framework ${{ matrix.dotnet }}
 
+
   dotnet-test-publish:
     runs-on: windows-2022
     needs: [dotnet-win-check, dotnet-other-check]
     environment: testnuget
+    permissions:
+      id-token: write
     steps:
+    - name: NuGet login
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: lballabio
+        token-service-url: https://int.nugettest.org/api/v2/token
+        audience: https://int.nugettest.org
     - uses: actions/download-artifact@v4
       with:
         name: nupkg-all
@@ -232,15 +242,20 @@ jobs:
         dotnet-version: '9.0.x'
     - name: Publish the package to nugettest.org
       run: |
-        dotnet nuget push C:\local\nupkg\*.nupkg --source https://apiint.nugettest.org/v3/index.json --api-key "$env:NUGET_AUTH_TOKEN"
-      env:
-        NUGET_AUTH_TOKEN: ${{ secrets.TEST_NUGET_TOKEN }}
+        dotnet nuget push C:\local\nupkg\*.nupkg --source https://int.nugettest.org/api/v2/package --api-key "${{ steps.login.outputs.NUGET_API_KEY }}"
 
   dotnet-publish:
     runs-on: windows-2022
     needs: [dotnet-test-publish]
     environment: nuget
+    permissions:
+      id-token: write
     steps:
+    - name: NuGet login
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: lballabio
     - uses: actions/download-artifact@v4
       with:
         name: nupkg-all
@@ -251,6 +266,4 @@ jobs:
         dotnet-version: '9.0.x'
     - name: Publish the package to nuget.org
       run: |
-        dotnet nuget push C:\local\nupkg\*.nupkg --source https://api.nuget.org/v3/index.json --api-key "$env:NUGET_AUTH_TOKEN"
-      env:
-        NUGET_AUTH_TOKEN: ${{ secrets.NUGET_TOKEN }}
+        dotnet nuget push C:\local\nupkg\*.nupkg --source https://www.nuget.org/api/v2/package --api-key "${{ steps.login.outputs.NUGET_API_KEY }}"
