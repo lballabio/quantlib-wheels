@@ -2,7 +2,7 @@
 set -e
 
 # Setup Boost
-curl -O -L https://archives.boost.io/release/1.88.0/source/boost_1_88_0.tar.gz
+curl -O -L https://archives.boost.io/release/1.89.0/source/boost_1_89_0.tar.gz
 tar xfz boost_*.tar.gz
 cd boost_*/
 mv boost /usr/local/include/
