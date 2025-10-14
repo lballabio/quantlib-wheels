@@ -37,7 +37,7 @@ jobs:
         path: C:\local\QuantLib-SWIG-1.40\CSharp\cpp\NQuantLibc.dll
 
   dotnet-osx-wrap:
-    runs-on: macos-13
+    runs-on: macos-14
     strategy:
       fail-fast: false
       matrix:
@@ -51,9 +51,9 @@ jobs:
       run: |
         tar xfz QuantLib-1.*.tar.gz
         cd QuantLib-1.*/
-        ./configure --disable-shared --enable-thread-safe-observer-pattern --enable-sessions --enable-unity-build --disable-test-suite --enable-skip-examples
+        ./configure --disable-shared --with-boost-include=`brew --prefix`/include --enable-thread-safe-observer-pattern --enable-sessions --enable-unity-build --disable-test-suite --enable-skip-examples
         make -j3 CXXFLAGS="-std=c++17 -g0 -O3 -arch ${{ matrix.arch }}" LDFLAGS="-arch ${{ matrix.arch }}"
-        make install
+        sudo make install
     - name: Build QuantLib wrappers
       run: |
         tar xfz QuantLib-SWIG-1.*.tar.gz
@@ -181,7 +181,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ['macos-13', 'macos-15', 'ubuntu-22.04']
+        os: ['macos-15-intel', 'macos-15', 'ubuntu-22.04']
         dotnet: ['net8.0', 'net9.0']
     runs-on: ${{ matrix.os }}
     needs: dotnet-nupkg
