@@ -71,7 +71,7 @@ jobs:
         path: .
     - id: version
       run: |
-        echo "version=`ls QuantLib-1*.tar.gz | sed 's/QuantLib-//' | sed 's/\.tar\.gz//'`" >> "$GITHUB_OUTPUT"
+        echo "version=`ls QuantLib-1*.tar.gz | sed 's/QuantLib-//' | sed 's/\.tar\.gz//'`" | tee -a "$GITHUB_OUTPUT"
 
   wheels-macos:
     strategy:
